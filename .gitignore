@@ -2,8 +2,13 @@
 .Python
 bin
 lib
+local
 include
+
+# Code
+src/*.pyc
+*.png
+example
 
 # Mac OS X custom attribute files
 .DS_Store
-
