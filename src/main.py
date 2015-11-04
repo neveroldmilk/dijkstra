@@ -5,13 +5,12 @@ from graph import Graph
 
 def main():
     g = Graph(100)
-    # g.generate()
-    # g.render()
-    g.static()
-    g.render()
+    graph = g.generate()
+    # graph = g.static()
     d = DFS()
-    v = d.dfs(g.graph, 3)
+    v = d.dfs(g.graph, 1)
     print v
+    g.render()
 
 if __name__ == '__main__':
     main()

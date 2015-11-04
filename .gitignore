@@ -8,7 +8,11 @@ include
 # Code
 src/*.pyc
 *.png
-example
+example.gv
+
+# samples graphs
+graphs
+
 
 # Mac OS X custom attribute files
 .DS_Store
