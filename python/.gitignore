@@ -1,0 +1,19 @@
+# Virtualenv
+.Python
+bin
+lib
+local
+include
+
+# Code
+src/*.pyc
+output
+*.png
+example.gv
+
+# samples graphs
+graphs
+
+
+# Mac OS X custom attribute files
+.DS_Store
