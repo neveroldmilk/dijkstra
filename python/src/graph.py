@@ -27,8 +27,9 @@ class MyGraph(object):
         self.graph[6] = set([])
         return self.graph
 
-    def render(self):
-        u = Graph('graph', filename='example.gv', format='png')
+    def render(self, dir="output/{0}"):
+        fname = dir.format('example.gv')
+        u = Graph('graph', filename=fname, format='png')
 
         for key, values in self.graph.iteritems():
             u.node(str(key))
