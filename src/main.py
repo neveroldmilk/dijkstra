@@ -5,9 +5,9 @@ from graph import Graph
 
 def main():
     g = Graph(100)
-    # g.generate()
+    g.generate()
     # g.render()
-    g.static()
+    # g.static()
     g.render()
     d = DFS()
     v = d.dfs(g.graph, 3)

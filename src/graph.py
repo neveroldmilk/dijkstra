@@ -16,7 +16,7 @@ class Graph(object):
             children_nodes = nprnd.randint(self.max_depth,
                                            size=self.max_childrens)
             children_nodes = [k for k in children_nodes if k > node]
-            self.graph[node] = list(set(children_nodes))
+            self.graph[node] = set(children_nodes)
 
     def static(self):
         self.graph[1] = set([2, 3])

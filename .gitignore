@@ -9,6 +9,7 @@ include
 src/*.pyc
 *.png
 example
+example.gv
 
 # Mac OS X custom attribute files
 .DS_Store
