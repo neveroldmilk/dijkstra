@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
-from graphviz import Graph as G
+from graphviz import Graph
 import numpy.random as nprnd
 
-class Graph(object):
-    """Graph class"""
+class MyGraph(object):
+    """MyGraph class"""
     def __init__(self, max_depth, max_childrens = 4):
         self.graph = dict()
         self.max_depth = max_depth
@@ -20,14 +20,16 @@ class Graph(object):
 
     def static(self):
         self.graph[1] = set([2, 3])
-        self.graph[2] = set([1, 4, 5])
-        self.graph[3] = set([1, 6])
-        self.graph[4] = set([2])
-        self.graph[5] = set([2, 6])
-        self.graph[6] = set([3, 5])
+        self.graph[2] = set([4, 5])
+        self.graph[3] = set([])
+        self.graph[4] = set([])
+        self.graph[5] = set([])
+        self.graph[6] = set([])
+        return self.graph
 
-    def render(self):
-        u = G('graph', filename='example.gv', format='png')
+    def render(self, dir="output/{0}"):
+        fname = dir.format('example.gv')
+        u = Graph('graph', filename=fname, format='png')
 
         for key, values in self.graph.iteritems():
             u.node(str(key))

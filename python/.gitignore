@@ -9,16 +9,11 @@ include
 src/*.pyc
 output
 *.png
-<<<<<<< HEAD
-example
-example.gv
-=======
 example.gv
 
 # samples graphs
 graphs
 
->>>>>>> 6e8c0547736dedd566aa95c4d7d6401e2dc63969
 
 # Mac OS X custom attribute files
 .DS_Store
