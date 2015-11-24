@@ -5,6 +5,9 @@ lib
 local
 include
 
+# atom files configuration
+.remote-sync.json
+
 # Code
 src/*.pyc
 output
