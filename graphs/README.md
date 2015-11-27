@@ -4,7 +4,8 @@ All the graphs used as samples in this work were created used [graph-tool](https
 
 
 * [100k](http://www.filedropper.com/graph-100k)
-* [250k]()
-* [500k]()
+* [250k](http://www.filedropper.com/graph-250k)
+* [500k](http://www.filedropper.com/graph-500k_1)
+* [1M](http://www.filedropper.com/graph-1m)
 
 All files are hosted in [Filedropper](http://www.filedropper.com/) service. If they are unavailable, please, let me know.
