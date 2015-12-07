@@ -2,3 +2,6 @@
 !.gitignore
 !README.md
 !graph-10.gml
+!graph-100k.gml
+!graph-500k.gml
+!graph-1M.gml
