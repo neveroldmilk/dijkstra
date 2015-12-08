@@ -7,13 +7,18 @@ include
 
 # atom files configuration
 .remote-sync.json
+.ipynb_checkpoints
+share
 
 # Code
 src/*.pyc
+pycuda/*.pyc
 output
+images
 *.png
 example
 example.gv
+dijkstra-presentation.ipynb
 
 # Mac OS X custom attribute files
 .DS_Store

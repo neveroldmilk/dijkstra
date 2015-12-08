@@ -1,13 +1,13 @@
-# dfs
+# dijkstra
 
 ## description
-Implementing DFS (Depth First Search) algorithm in python in sequential form
-and using CUDA environment.
+Implementing Dijkstra algorithm in python in sequential form
+and using CUDA environment (with pycuda).
 
 ## Work with python sequential
 You can run the following commands:
 ```
-$ cd dfs/python
+$ cd dijkstra/python
 $ pip install -r requirements.txt
 $ python src/main.py
 ```
