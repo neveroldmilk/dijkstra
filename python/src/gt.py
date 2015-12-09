@@ -6,6 +6,7 @@ from graph_tool.all import *
 gt_generation = graph_tool.generation
 gt_draw = graph_tool.draw
 gt_search = graph_tool.search
+N = 30 # max weight
 
 # print graph_tool.show_config()
 # graph_tool.openmp_set_num_threads(1)
@@ -52,13 +53,22 @@ toc = timeit.default_timer()
 print "graph generate in: {0} seconds".format(toc - tic)
 
 ##### applying labels #####
-label = g.new_vertex_property("string")
+label = g.new_vertex_property("int")
 g.vp.label = label
 tic=timeit.default_timer()
 for v in g.vertices():
     g.vp.label[v] = g.vertex_index[v]
 toc = timeit.default_timer()
 print "applying labels took {0} seconds".format(toc - tic)
+
+##### applying weights #####
+weight = g.new_edge_property("int")
+g.ep.weight = weight
+tic=timeit.default_timer()
+for e in g.edges():
+    g.vp.weight[e] = np.random.random_integers(N)
+toc = timeit.default_timer()
+print "applying weights took {0} seconds".format(toc - tic)
 
 ##### loading graph #####
 # tic=timeit.default_timer()
