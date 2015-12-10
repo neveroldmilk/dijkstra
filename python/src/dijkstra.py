@@ -8,22 +8,22 @@ from itertools import count
 from heapq import heappush, heappop
 
 tic = timeit.default_timer()
-g = nx.read_gml('../../graphs/graph-1M.gml')
+g = nx.read_gml('../../graphs/graph-10.gml')
 toc = timeit.default_timer()
 print 'graph loaded in {0} seconds->'.format(toc - tic)
 
 # draw graph
-# pos = nx.spring_layout(g)
-# nx.draw_networkx_nodes(g,pos)
-# nx.draw_networkx_edges(g,pos)
-# nx.draw_networkx_labels(g,pos)
-# plt.show()
+pos = nx.spring_layout(g)
+nx.draw_networkx_nodes(g,pos)
+nx.draw_networkx_edges(g,pos)
+nx.draw_networkx_labels(g,pos)
+plt.show()
 
 
 # dijkstra initialization
 # parameters: source, get_weight (function), target (optional)
-source = 1;
-target = 99999;
+source = 0;
+target = 7;
 weight = 'weight'
 g_adj = g.adj
 paths = {source: [source]}
@@ -38,8 +38,8 @@ get_weight = lambda u, v, data: data.get(weight, 1)
 
 # dijkstra main loop
 # enable 2 lines below when run into terminal
-# figure_order = 0
-# plt.savefig("{0}_figure_v{1}.png".format(figure_order, source), format="PNG")
+figure_order = 0
+plt.savefig("{0}_figure_v{1}.png".format(figure_order, source), format="PNG")
 
 tic = timeit.default_timer()
 while fringe:
@@ -50,7 +50,7 @@ while fringe:
     if v == target:
         break
 
-    for u, e in g_adj[str(v)].items():
+    for u, e in g_adj[v].items():
         cost = get_weight(v, u, e)
         if cost is None:
             continue
@@ -63,9 +63,9 @@ while fringe:
 
         elif u not in seen or vu_dist < seen[u]:
             # draw graph with each of vertex painted
-            # nx.draw_networkx_nodes(g,pos, nodelist=[u], node_color="b")
-            # plt.savefig("{0}_figure_v{1}.png".format(figure_order, u), format="PNG")
-            # figure_order += 1
+            nx.draw_networkx_nodes(g,pos, nodelist=[u], node_color="b")
+            plt.savefig("{0}_figure_v{1}.png".format(figure_order, u), format="PNG")
+            figure_order += 1
             seen[u] = vu_dist
             heappush(fringe, (vu_dist, next(c), u))
             if paths is not None:
@@ -82,7 +82,7 @@ toc = timeit.default_timer()
 print 'graph covered in {0} seconds->'.format(toc - tic)
 # print 'dist->', dist
 # print 'paths->', paths
-print 'shortest path to target', paths[str(target)]
+print 'shortest path to target', paths[target]
 
 
 # In[ ]:
