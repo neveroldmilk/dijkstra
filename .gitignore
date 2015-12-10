@@ -8,6 +8,7 @@ include
 # atom files configuration
 .remote-sync.json
 .ipynb_checkpoints
+deployment-config.json
 share
 
 # Code
