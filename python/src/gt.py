@@ -45,7 +45,7 @@ class VisitorExample(gt_search.DFSVisitor):
 ##### generating graph #####
 p = scipy.stats.poisson
 tic=timeit.default_timer()
-g = gt_generation.random_graph(500000, lambda: (sample_k(19), sample_k(19)),
+g = gt_generation.random_graph(5, lambda: (sample_k(19), sample_k(19)),
     model="probabilistic",
     vertex_corr=lambda a,b: (p.pmf(a[0], b[1]) *p.pmf(a[1], 20 - b[0])),
     n_iter=100)
@@ -66,7 +66,7 @@ weight = g.new_edge_property("int")
 g.ep.weight = weight
 tic=timeit.default_timer()
 for e in g.edges():
-    g.vp.weight[e] = np.random.random_integers(N)
+    g.ep.weight[e] = np.random.random_integers(N)
 toc = timeit.default_timer()
 print "applying weights took {0} seconds".format(toc - tic)
 
@@ -88,4 +88,4 @@ print "applying weights took {0} seconds".format(toc - tic)
 # drawing graph
 # gt_draw.graph_draw(g, output="graph-100k.svg")
 # saving grpahs into gml format
-g.save('graph-500k.gml')
+g.save('graph-5.gml')
