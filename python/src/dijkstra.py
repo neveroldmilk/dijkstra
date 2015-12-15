@@ -8,15 +8,17 @@ from itertools import count
 from heapq import heappush, heappop
 
 tic = timeit.default_timer()
-g = nx.read_gml('../../graphs/graph-5-com-pesos-positivos.gml')
+g = nx.read_gml('../../graphs/graph.gml')
 toc = timeit.default_timer()
 print 'graph loaded in {0} seconds->'.format(toc - tic)
 
+el = [labels['weight'] for u, v, labels in g.edges(data=True)]
 # draw graph
 pos = nx.spring_layout(g)
 nx.draw_networkx_nodes(g,pos, nodelist=g.nodes(), node_color="r")
 nx.draw_networkx_edges(g,pos, edgelist=g.edges())
 nx.draw_networkx_labels(g,pos)
+# nx.draw_networkx_edge_labels(g, pos, edges_labels=el, label_pos=1)
 plt.savefig("0_figure_v.png", format="PNG")
 plt.show()
 
@@ -52,8 +54,8 @@ while fringe:
     if v in dist:
         continue # vertex already visited
     dist[v] = d
-    if v == target:
-        break
+    # if v == target:
+        # break
 
     for u, info in g_adj[v].items():
         cost = get_weight(v, u, info)
@@ -88,3 +90,4 @@ toc = timeit.default_timer()
 # dijkstra output
 print 'graph covered in {0} seconds'.format(toc - tic)
 print 'shortest path to target', paths[target]
+print 'weights from source to other vertices', seen
