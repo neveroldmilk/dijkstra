@@ -12,67 +12,92 @@ GRAPHS_DIRECTORY = os.path.abspath(
     os.path.join(__file__, '../../../graphs')) + '/{0}'
 PYCUDA = True
 if PYCUDA:
+    tic = timeit.default_timer()
     import pycuda.autoinit
     import pycuda.driver as cuda
     from pycuda.compiler import SourceModule
+    toc = timeit.default_timer()
+    print 'cuda import: {0} seconds.'.format(toc - tic)
 
 MAX_WEIGHT = 1000
 
 if PYCUDA:
     MOD = SourceModule("""
-    __global__ void Find_Vertex(int *weight_matrix, int *verticies, int *visited, int *weights, int numV) {
+    #include <stdio.h>
+    __device__ int numV = 8;
+    __global__ void Find_Vertex(int *weight_matrix, int *visited, int *len, int *updlen) {
         int u = threadIdx.x; // source
         if (visited[u] == 0) {
-            visited[u] = numV;
+            visited[u] = 1;
             int v;
             for (v = 0; v < numV; v++) {
-               int w = weight_matrix[u*numV + v];
-               if (w != 0) {
-                   weights[v] = w;
-               }
+                int w = weight_matrix[u*numV + v]; //find_edge
+                if (w < 1000) {
+                    if (updlen[v] > len[u] + w) {
+                        updlen[v] = len[u] + w;
+                    }
+                }
             }
-
         }
     }
+
+    __global__ void Update_Paths(int *visited, int *len, int *updlen)
+	{
+         int u = threadIdx.x;
+         if(len[u] > updlen[u])
+           {
+                len[u] = updlen[u];
+                visited[u] = 0; //FALSO
+            }
+
+         updlen[u] = len[u];
+        }
+
     """)
 
-def cuda_proccess(weight_matrix, verticies, visited, weights, numV):
+def cuda_proccess(weight_matrix, vertices, visited, lenx, updlenx):
     # init variables to device
+    tic = timeit.default_timer()
     weight_matrix_gpu = cuda.mem_alloc(weight_matrix.size * weight_matrix.dtype.itemsize)
-    verticies_gpu = cuda.mem_alloc(verticies.size * verticies.dtype.itemsize)
     visited_gpu = cuda.mem_alloc(visited.size * visited.dtype.itemsize)
-    weights_gpu = cuda.mem_alloc(weights.size * weights.dtype.itemsize)
-    # numV_gpu = cuda.mem_alloc(sys.getsizeof(numV))
+    len_gpu = cuda.mem_alloc(lenx.size * lenx.dtype.itemsize)
+    updlen_gpu = cuda.mem_alloc(updlenx.size * updlenx.dtype.itemsize)
+    toc = timeit.default_timer()
+    print 'memory alloc on device: {0} seconds.'.format(toc - tic)
 
+    tic = timeit.default_timer()
     cuda.memcpy_htod(weight_matrix_gpu, weight_matrix)
-    cuda.memcpy_htod(verticies_gpu, verticies)
     cuda.memcpy_htod(visited_gpu, visited)
-    cuda.memcpy_htod(weights_gpu, weights)
+    cuda.memcpy_htod(len_gpu, lenx)
+    cuda.memcpy_htod(updlen_gpu, updlenx)
+    toc = timeit.default_timer()
+    print 'memory copy from host to device: {0} seconds.'.format(toc - tic)
 
     _find_vertex = MOD.get_function("Find_Vertex")
-    _find_vertex(
-        weight_matrix_gpu,
-        verticies_gpu,
-        visited_gpu,
-        weights_gpu,
-        np.int32(numV),
-        block=(numV,1,1))
+    _update_paths = MOD.get_function("Update_Paths")
 
-    # dest = np.zeros_like(dest)
-    cuda.memcpy_dtoh(verticies, verticies_gpu)
+    for i in xrange(vertices.size):
+        _find_vertex(
+            weight_matrix_gpu,
+            visited_gpu,
+            len_gpu,
+            updlen_gpu,
+            block=(numV,1,1))
+        for k in xrange(vertices.size):
+            _update_paths(visited_gpu, len_gpu, updlen_gpu,block=(numV,1,1))
+
+    tic = timeit.default_timer()
     cuda.memcpy_dtoh(visited, visited_gpu)
-    cuda.memcpy_dtoh(weights, weights_gpu)
-    print "verticies visited"
-    print visited
-    print "weights"
-    print weights
-
+    cuda.memcpy_dtoh(lenx, len_gpu)
+    cuda.memcpy_dtoh(updlenx, updlen_gpu)
+    toc = timeit.default_timer()
+    print 'memory copy from device to host: {0} seconds.'.format(toc - tic)
+    print "new len"
+    print lenx
 
 def print_info():
     device = pycuda.autoinit.device
-    giga = 1073741824.0
     print "Model: {0}".format(device.name())
-    print "Memory: {:.03} (in GigaBytes)".format(device.total_memory() / giga)
 
 # reading gml
 def load_gml(args):
@@ -104,25 +129,33 @@ if __name__ == '__main__':
     args = main_parser()
     g = load_gml(args)
 
-    edges = g.edges()
-    verticies = np.array(g.nodes()).astype(np.int32)
+    tic = timeit.default_timer()
+    vertices = np.array(g.nodes()).astype(np.int32)
     weight_matrix = nx.to_numpy_matrix(g,
         nodelist=sorted(g.nodes()),
         dtype=np.int32,
-        # nonedge=MAX_WEIGHT
+        nonedge=MAX_WEIGHT
     )
+    numV = vertices.size
+    visited = np.zeros_like(vertices).astype(np.int32)
+    weights = np.zeros_like(vertices).astype(np.int32)
+    lenx = np.zeros_like(vertices).astype(np.int32)
+    updlenx = np.zeros_like(vertices).astype(np.int32)
+    tmp = np.zeros_like(vertices).astype(np.int32)
+    wmf = weight_matrix.getA1().astype(np.int32)
+    toc = timeit.default_timer()
+    print 'load data: {0} seconds.'.format(toc - tic)
 
-    wv = weight_matrix.flatten()
-    print wv
+    source = 0
+    for i in xrange(vertices.size):
+        if i == source:
+            lenx[i] = 0
+        else:
+            lenx[i] = _find_weight(source, vertices[i], weight_matrix)
+            updlenx[i] = lenx[i]
 
-    numV = len(verticies)
-    visited = np.zeros_like(verticies).astype(np.int32)
-    weights = np.zeros_like(verticies).astype(np.int32)
-    # verticies = [dict(id=k, visited=0) for k in g.nodes()]
-    # weights = tuple([w['weight'] for (source, target, w) in g.edges(data=True)])
-    # verticies = [Vertex(id=i, visited=0) for i in g.nodes()]
+    print "old len"
+    print lenx
 
-    print weight_matrix
-    print visited
     if PYCUDA:
-        cuda_proccess(weight_matrix, verticies, visited, weights, numV)
+        cuda_proccess(wmf, vertices, visited, lenx, updlenx)
