@@ -6,9 +6,10 @@ from graph_tool.all import *
 gt_generation = graph_tool.generation
 gt_draw = graph_tool.draw
 gt_search = graph_tool.search
+V = 3 
 N = 30 # max weight
 M = -30 # min weight
-# M = 1 # min weight 
+# M = 1 # min weight
 
 # print graph_tool.show_config()
 # graph_tool.openmp_set_num_threads(1)
@@ -47,7 +48,7 @@ class VisitorExample(gt_search.DFSVisitor):
 ##### generating graph #####
 p = scipy.stats.poisson
 tic=timeit.default_timer()
-g = gt_generation.random_graph(5, lambda: (sample_k(19), sample_k(19)),
+g = gt_generation.random_graph(V, lambda: (sample_k(19), sample_k(19)),
     model="probabilistic",
     vertex_corr=lambda a,b: (p.pmf(a[0], b[1]) *p.pmf(a[1], 20 - b[0])),
     n_iter=100)
@@ -90,4 +91,5 @@ print "applying weights took {0} seconds".format(toc - tic)
 # drawing graph
 # gt_draw.graph_draw(g, output="graph-100k.svg")
 # saving grpahs into gml format
-g.save('graph-5-com-pesos.gml')
+name = 'graph-{0}.gml'.format(V)
+g.save(name)
