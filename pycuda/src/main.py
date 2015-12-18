@@ -19,14 +19,14 @@ if PYCUDA:
     toc = timeit.default_timer()
     print 'cuda import: {0} seconds.'.format(toc - tic)
 
-MAX_WEIGHT = 1000
+MAX_WEIGHT = 100
 
 if PYCUDA:
     MOD = SourceModule("""
     #include <stdio.h>
-    __device__ int numV = 8;
     __global__ void Find_Vertex(int *weight_matrix, int *visited, int *len, int *updlen) {
         int u = threadIdx.x; // source
+        int numV = blockDim.x;
         if (visited[u] == 0) {
             visited[u] = 1;
             int v;
@@ -76,6 +76,7 @@ def cuda_proccess(weight_matrix, vertices, visited, lenx, updlenx):
     _find_vertex = MOD.get_function("Find_Vertex")
     _update_paths = MOD.get_function("Update_Paths")
 
+    tic = timeit.default_timer()
     for i in xrange(vertices.size):
         _find_vertex(
             weight_matrix_gpu,
@@ -85,6 +86,8 @@ def cuda_proccess(weight_matrix, vertices, visited, lenx, updlenx):
             block=(numV,1,1))
         for k in xrange(vertices.size):
             _update_paths(visited_gpu, len_gpu, updlen_gpu,block=(numV,1,1))
+    toc = timeit.default_timer()
+    print 'calc: {0} seconds.'.format(toc - tic)
 
     tic = timeit.default_timer()
     cuda.memcpy_dtoh(visited, visited_gpu)
@@ -92,8 +95,8 @@ def cuda_proccess(weight_matrix, vertices, visited, lenx, updlenx):
     cuda.memcpy_dtoh(updlenx, updlen_gpu)
     toc = timeit.default_timer()
     print 'memory copy from device to host: {0} seconds.'.format(toc - tic)
-    print "new len"
-    print lenx
+    # print "new len"
+    # print lenx
 
 def print_info():
     device = pycuda.autoinit.device
@@ -145,6 +148,7 @@ if __name__ == '__main__':
     wmf = weight_matrix.getA1().astype(np.int32)
     toc = timeit.default_timer()
     print 'load data: {0} seconds.'.format(toc - tic)
+    print 'numV', numV
 
     source = 0
     for i in xrange(vertices.size):
