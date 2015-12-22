@@ -2,7 +2,7 @@
 # learning in http://www.gnu.org/software/make/manual/make.html#Overview
 
 CC = gcc
-CC_FLAGS = -fopenmp
+CC_FLAGS = -std=c11
 BIN_PATH = bin/
 INC_PATH = include/
 SRC_PATH = src/
